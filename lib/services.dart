@@ -1,5 +1,6 @@
 class Services {
-  String baseUrl = 'http://192.168.0.107:8000/api/';
+
+  String baseUrl = 'http://64.23.247.79:8007/api/';
   String login = 'login';
   String register = 'register';
   String busInfo = 'bus-info';

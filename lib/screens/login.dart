@@ -2,11 +2,16 @@
 
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:bus_ticketing_app/screens/register.dart';
 import 'package:bus_ticketing_app/screens/userdetails.dart';
 import 'package:bus_ticketing_app/services.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_overlay/loading_overlay.dart';
 import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,10 +25,13 @@ class LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-Future<void> _login() async {
+  Future<void> _login(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        isloading = true;
+      });
       final response = await http.post(
-        Uri.parse(Services().baseUrl+Services().login),
+        Uri.parse(Services().baseUrl + Services().login),
         body: {
           'email': _emailController.text,
           'password': _passwordController.text,
@@ -31,8 +39,20 @@ Future<void> _login() async {
       );
 
       if (response.statusCode == 200) {
+        setState(() {
+          isloading = false;
+        });
         final data = json.decode(response.body);
         final token = data['token'];
+        final user = data['user'];
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('token', token);
+        prefs.setInt('user_id', user['id']);
+        prefs.setString('user_name', user['name']);
+        prefs.setString('user_email', user['email']);
+        Fluttertoast.showToast(
+            msg: 'Login successful', backgroundColor: Colors.green);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -40,51 +60,121 @@ Future<void> _login() async {
           ),
         );
       } else {
-        // Handle login error
+        setState(() {
+          isloading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login failed. Please check your credentials.')),
+          const SnackBar(
+            content: Text('Login failed. Please check your credentials.'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
   }
 
-  
+  bool isloading = false;
   @override
   Widget build(BuildContext context) {
+    double w = MediaQuery.of(context).size.width;
+    double h = MediaQuery.of(context).size.height;
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
+      body: LoadingOverlay(
+        isLoading: isloading,
+        progressIndicator: const CircularProgressIndicator(),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding:
+                EdgeInsets.symmetric(horizontal: w * 0.1, vertical: h * 0.15),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'RFID Based Billing System',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepOrange,
+                      fontSize: 24,
+                    ),
+                  ),
+                  SizedBox(height: h * 0.1),
+                  const Text(
+                    'Login To Your Account',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      labelStyle: TextStyle(
+                          color: Colors.black), // black label text color
+                      // border: OutlineInputBorder(
+                      //   borderSide: BorderSide(
+                      //       color: Colors.black), // black border color
+                      //),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      labelStyle: TextStyle(
+                          color: Colors.black), // black label text color
+                      // border: OutlineInputBorder(
+                      //   borderSide: BorderSide(
+                      //       color: Colors.black), // black border color
+                      // ),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () {
+                      _login(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepOrange,
+                    ),
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  Center(
+                    child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: ((context) =>
+                                      const RegisterScreen())));
+                        },
+                        child: const Text(
+                          'Create an account',
+                          style: TextStyle(color: Colors.deepOrange),
+                        )),
+                  )
+                ],
               ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
-              ),
-              ElevatedButton(
-                onPressed: _login,
-                child: const Text('Login'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

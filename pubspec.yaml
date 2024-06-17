@@ -38,6 +38,8 @@ dependencies:
   http: ^1.2.1
   shared_preferences: ^2.2.3
   barcode_scan2: ^4.3.0
+  fluttertoast: ^8.2.6
+  loading_overlay: ^0.3.0
 
 dev_dependencies:
   flutter_test:

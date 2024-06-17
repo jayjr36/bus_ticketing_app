@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegisterScreen(),
         '/login': (context) => const LoginScreen(),
        // '/qr-scanner': (context) => QRScannerScreen(token: 'your-token'),
-        '/tickets': (context) => const TicketsScreen(token: 'your-token'), 
+        '/tickets': (context) => const TicketsScreen(), 
       },
     );
   }
