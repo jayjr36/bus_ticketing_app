@@ -4,7 +4,7 @@ class Services {
   String login = 'login';
   String register = 'register';
   String busInfo = 'bus-info';
-  String deductFare = 'services.dart';
+  String deductFare = 'deduct-fare';
   String getTickets = 'tickets?user_id=your-user-id';
   String getUserDetails = 'user';
 }

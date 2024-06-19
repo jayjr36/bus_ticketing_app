@@ -2,7 +2,6 @@
 
 import 'package:bus_ticketing_app/screens/login.dart';
 import 'package:bus_ticketing_app/screens/register.dart';
-import 'package:bus_ticketing_app/screens/scanner,dart';
 import 'package:bus_ticketing_app/screens/tickets.dart';
 import 'package:flutter/material.dart';
 

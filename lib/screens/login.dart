@@ -42,6 +42,7 @@ class LoginScreenState extends State<LoginScreen> {
         setState(() {
           isloading = false;
         });
+        print(response.body);
         final data = json.decode(response.body);
         final token = data['token'];
         final user = data['user'];
