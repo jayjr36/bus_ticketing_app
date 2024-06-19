@@ -54,12 +54,12 @@ class LoginScreenState extends State<LoginScreen> {
         prefs.setString('user_email', user['email']);
         Fluttertoast.showToast(
             msg: 'Login successful', backgroundColor: Colors.green);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => UserDetailsScreen(token: token),
-          ),
-        );
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: ((context) => UserDetailsScreen(token: token))),
+            (route) => false);
+
       } else {
         setState(() {
           isloading = false;
@@ -93,11 +93,11 @@ class LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'RFID Based Billing System',
+                    'QRidePay',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.deepOrange,
-                      fontSize: 24,
+                      fontSize: 28,
                     ),
                   ),
                   SizedBox(height: h * 0.1),
@@ -152,11 +152,19 @@ class LoginScreenState extends State<LoginScreen> {
                       _login(context);
                     },
                     style: ElevatedButton.styleFrom(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(10.0))),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: w * 0.33, vertical: h * 0.01),
                       backgroundColor: Colors.deepOrange,
                     ),
                     child: const Text(
                       'Login',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                   Center(

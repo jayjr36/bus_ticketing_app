@@ -19,7 +19,6 @@ class TicketsScreenState extends State<TicketsScreen> {
   List<dynamic> tickets = [];
   String? token;
   String? userId;
-
   @override
   void initState() {
     super.initState();
@@ -47,19 +46,18 @@ class TicketsScreenState extends State<TicketsScreen> {
     );
 
     if (response.statusCode == 200) {
-      print(response.body);
       setState(() {
         tickets = json.decode(response.body)['tickets'];
         isLoading = false;
       });
     } else {
-      // Handle error
       setState(() {
         isLoading = false;
       });
-      print(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load tickets')),
+        const SnackBar(content: Text('Failed to load tickets'), 
+        backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -72,7 +70,8 @@ class TicketsScreenState extends State<TicketsScreen> {
       appBar: AppBar(
         title: const Text(
           'My Tickets',
-          style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
+          style:
+              TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
         ),
       ),
       body: LoadingOverlay(
@@ -84,10 +83,15 @@ class TicketsScreenState extends State<TicketsScreen> {
                 itemBuilder: (context, index) {
                   final ticket = tickets[index];
                   return ListTile(
-                    title: Text('Route: ${ticket['route_name']}'),
-                    subtitle: Text('Bus: ${ticket['bus_name']}'),
+                    textColor: Colors.deepOrange,
+                    tileColor: Color.fromARGB(255, 242, 233, 219),
+                    shape: const RoundedRectangleBorder(
+                      side: BorderSide(color: Colors.deepOrange, width: 2),
+                       borderRadius:
+                                  BorderRadius.all(Radius.circular(10.0))),
+                    subtitle: Text('Route: ${ticket['route_name']}'),
+                    title: Text('${ticket['bus_name']}'),
                     trailing: Text('Fare: ${ticket['fare']}'),
-                    // You can display 'date' here if needed
                   );
                 },
               ),

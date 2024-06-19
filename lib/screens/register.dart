@@ -22,7 +22,6 @@ class RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _cardNumberController = TextEditingController();
-  final TextEditingController _balanceController = TextEditingController();
 
   Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
@@ -37,7 +36,7 @@ class RegisterScreenState extends State<RegisterScreen> {
           'password': _passwordController.text,
           'password_confirmation': _passwordController.text,
           'card_number': _cardNumberController.text,
-          'balance': _balanceController.text,
+          'balance': 0,
         },
       );
 
@@ -70,17 +69,17 @@ class RegisterScreenState extends State<RegisterScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding:
-                EdgeInsets.symmetric(vertical: h * 0.2, horizontal: w * 0.1),
+                EdgeInsets.symmetric(vertical: h * 0.15, horizontal: w * 0.1),
             child: Form(
               key: _formKey,
               child: Column(
                 children: [
                   const Text(
-                    'RFID Based Billing System',
+                    'QRidePay',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.deepOrange,
-                      fontSize: 24,
+                      fontSize: 28,
                     ),
                   ),
                   SizedBox(height: h * 0.1),
@@ -132,23 +131,32 @@ class RegisterScreenState extends State<RegisterScreen> {
                       return null;
                     },
                   ),
-                  TextFormField(
-                    controller: _balanceController,
-                    decoration: const InputDecoration(labelText: 'Balance'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the balance';
-                      }
-                      return null;
-                    },
-                  ),
+                  // TextFormField(
+                  //   controller: _balanceController,
+                  //   decoration: const InputDecoration(labelText: 'Balance'),
+                  //   validator: (value) {
+                  //     if (value == null || value.isEmpty) {
+                  //       return 'Please enter the balance';
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
+                  SizedBox(height: h* 0.005,),
                   ElevatedButton(
                     onPressed: _register,
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepOrange),
+                   style: ElevatedButton.styleFrom(
+                       shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10.0))),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: w * 0.31, vertical: h * 0.01),
+                          backgroundColor: Colors.deepOrange,
+                     
+                    ),
                     child: const Text(
                       'Register',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white,  fontSize: 16,
+                            fontWeight: FontWeight.bold),
                     ),
                   ),
                   TextButton(

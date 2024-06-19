@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, non_constant_identifier_names
 
 import 'dart:async';
 import 'dart:convert';
@@ -8,7 +8,9 @@ import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:bus_ticketing_app/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_overlay/loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -27,7 +29,7 @@ class ScanState extends State<ScanScreen> {
   String? routeId;
   int? user_Id;
   String? token;
-
+  bool isloading = false;
   @override
   void initState() {
     super.initState();
@@ -39,53 +41,87 @@ class ScanState extends State<ScanScreen> {
     setState(() {
       user_Id = prefs.getInt('user_id');
       token = prefs.getString('token');
-      print(user_Id);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    double h = MediaQuery.of(context).size.height;
+    double w = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('QR Code Scanner'),
+        title: const Text(
+          'QRidePay',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.deepOrange,
+            fontSize: 28,
+          ),
+        ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: ElevatedButton(
-                onPressed: scan,
-                child: const Text('START CAMERA SCAN'),
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Text(
-                barcode.isEmpty
-                    ? 'Scan a QR code'
-                    : 'Scanned QR Code: \n$parsedJson',
-                textAlign: TextAlign.center,
-              ),
-            ),
-            if (busName.isNotEmpty &&
-                routeName.isNotEmpty &&
-                fare > 0) // Show button only when bardoce is scanned
+      body: LoadingOverlay(
+        isLoading: isloading,
+        progressIndicator: const CircularProgressIndicator(
+          color: Colors.deepOrange,
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: ElevatedButton(
-                  onPressed: () {
-                    processTicket();
-                  },
-                  child: const Text('Process Ticket'),
+                  onPressed: scan,
+                  style: OutlinedButton.styleFrom(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(10.0))),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: w * 0.1, vertical: h * 0.01),
+                      backgroundColor: Colors.deepOrange),
+                  child: const Text(
+                    'SCAN NOW',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
-          ],
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Text(
+                  barcode.isEmpty
+                      ? 'Scan a QR code'
+                      : 'Scanned QR Code: \n$parsedJson',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              if (busName.isNotEmpty &&
+                  routeName.isNotEmpty &&
+                  fare > 0) // Show button only when bardoce is scanned
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      processTicket();
+                    },
+                    style: OutlinedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0))),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: w * 0.005, vertical: h * 0.01),
+                        backgroundColor: Colors.deepOrange),
+                    child: const Text(
+                      'Get Ticket',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -131,11 +167,17 @@ class ScanState extends State<ScanScreen> {
 
   Future<void> fetchBusInfo() async {
     try {
+      setState(() {
+        isloading = true;
+      });
       final response = await http.post(
           Uri.parse(Services().baseUrl + Services().busInfo),
           body: jsonDecode(barcode));
 
       if (response.statusCode == 200) {
+        setState(() {
+          isloading = false;
+        });
         Map<String, dynamic> data = jsonDecode(response.body);
         setState(() {
           busName = data['bus_name'];
@@ -144,16 +186,27 @@ class ScanState extends State<ScanScreen> {
           fare = double.parse(data['fare'].toString());
         });
       } else {
+        setState(() {
+          isloading = false;
+        });
+        Fluttertoast.showToast(
+            msg: 'Failed to fetch bus info', backgroundColor: Colors.red);
         throw Exception('Failed to fetch bus info');
       }
     } catch (e) {
-      print('Error fetching bus info: $e');
-      // Handle error accordingly
+      setState(() {
+        isloading = false;
+      });
+      Fluttertoast.showToast(
+          msg: 'Error fetching bus info: $e', backgroundColor: Colors.red);
     }
   }
 
   void processTicket() async {
     try {
+      setState(() {
+        isloading = true;
+      });
       final response = await http.post(
         Uri.parse(Services().baseUrl + Services().deductFare),
         body: {
@@ -165,15 +218,19 @@ class ScanState extends State<ScanScreen> {
       );
 
       if (response.statusCode == 200) {
+        setState(() {
+          isloading = false;
+        });
         Map<String, dynamic> data = jsonDecode(response.body);
-        print(data);
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(data['message']),
             duration: const Duration(seconds: 3),
+            backgroundColor: Colors.green,
           ),
         );
-        // Optionally, reset scanned data after successful processing
+
         setState(() {
           barcode = "";
           busName = "";
@@ -181,8 +238,7 @@ class ScanState extends State<ScanScreen> {
           fare = 0.0;
         });
       } else {
-        print('Response status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        Fluttertoast.showToast(msg: 'Failed to deduct fare: ${response.statusCode}');
         throw Exception('Failed to deduct fare: ${response.body}');
       }
     } catch (e) {
