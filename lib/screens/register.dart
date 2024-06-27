@@ -36,7 +36,7 @@ class RegisterScreenState extends State<RegisterScreen> {
           'password': _passwordController.text,
           'password_confirmation': _passwordController.text,
           'card_number': _cardNumberController.text,
-          'balance': 0,
+          'balance': "0",
         },
       );
 
@@ -54,6 +54,9 @@ class RegisterScreenState extends State<RegisterScreen> {
         Fluttertoast.showToast(
             msg: 'Registration failed', backgroundColor: Colors.red);
       }
+       setState(() {
+          isloading = false;
+        });
     }
   }
 

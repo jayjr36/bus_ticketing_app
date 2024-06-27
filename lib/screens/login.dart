@@ -6,6 +6,7 @@ import 'package:bus_ticketing_app/screens/register.dart';
 import 'package:bus_ticketing_app/screens/userdetails.dart';
 import 'package:bus_ticketing_app/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_overlay/loading_overlay.dart';
@@ -97,10 +98,14 @@ class LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.deepOrange,
-                      fontSize: 28,
+                      fontSize: 42,
                     ),
                   ),
-                  SizedBox(height: h * 0.1),
+                 Image.network('https://cdn-icons-png.flaticon.com/512/8792/8792047.png', 
+                 height: h*0.1, 
+                 width: h*0.1,), 
+                  
+                 // SizedBox(height: h * 0.1),
                   const Text(
                     'Login To Your Account',
                     style: TextStyle(
